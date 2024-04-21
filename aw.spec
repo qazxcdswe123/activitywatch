@@ -49,6 +49,7 @@ def build_collect(analysis, name, console=True):
         console=console,
         entitlements_file=entitlements_file,
         codesign_identity=codesign_identity,
+        target_arch="arm64",
     )
     return COLLECT(
         exe,
