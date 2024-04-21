@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-14]
-        python_version: [3.10.11]
+        python_version: [3.11.9]
         node_version: [16]
         skip_rust: [false]
         skip_webui: [false]
@@ -205,52 +205,9 @@ jobs:
           name: builds-${{ runner.os }}-py${{ matrix.python_version }}
           path: dist/activitywatch-*.*
 
-  release-notes:
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') # only on runs triggered from tag
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: "recursive"
-          fetch-depth: 0 # fetch all branches and tags
-
-      - uses: ActivityWatch/check-version-format-action@v2
-        id: version
-        with:
-          prefix: "v"
-
-      - name: Echo version
-        run: |
-          echo "${{ steps.version.outputs.full }} (stable: ${{ steps.version.outputs.is_stable }})"
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-
-      - name: Install deps
-        run: |
-          pip install requests
-
-      - name: Generate release notes
-        run: |
-          LAST_RELEASE=`STABLE_ONLY=${{ steps.version.output.is_stable }} ./scripts/get_latest_release.sh`
-          ./scripts/build_changelog.py --range "$LAST_RELEASE...${{ steps.version.outputs.full }}"
-
-      # TODO: Move rename build_changelog and move into there
-      - name: Rename
-        run: |
-          mv changelog.md release_notes.md
-
-      - name: Upload release notes
-        uses: actions/upload-artifact@v3
-        with:
-          name: release_notes
-          path: release_notes.md
 
   release:
-    needs: [build, release-notes]
-    if: startsWith(github.ref, 'refs/tags/v') # only run on tag
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       # Will download all artifacts to path
