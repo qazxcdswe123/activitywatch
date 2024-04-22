@@ -18,8 +18,6 @@ jobs:
     env:
       # Wether to build and include extras (like aw-notify and aw-watcher-input)
       AW_EXTRAS: true
-      # sets the macOS version target, see: https://users.rust-lang.org/t/compile-rust-binary-for-older-versions-of-mac-osx/38695
-      MACOSX_DEPLOYMENT_TARGET: 10.9
     defaults:
       run:
         shell: bash
@@ -48,9 +46,10 @@ jobs:
       # Build in release mode if: (longer build times)
       #  - on a tag (release)
       #  - on the master branch (nightly)
+          # echo "RELEASE=${{ startsWith(github.ref_name, 'v') || github.ref_name == 'master' }}" >> $GITHUB_ENV
       - name: Set RELEASE
         run: |
-          echo "RELEASE=${{ startsWith(github.ref_name, 'v') || github.ref_name == 'master' }}" >> $GITHUB_ENV
+          echo "false" >> $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@v4
